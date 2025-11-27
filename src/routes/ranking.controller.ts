@@ -1,33 +1,39 @@
-import { Router, Request, Response } from "express";
-import Ranking from "../models/Ranking";
+import express from 'express';
+import UserRanking from '../models/UserRanking';
 
-const router = Router();
+const router = express.Router();
 
-// 랭킹 저장
-router.post("/", async (req: Request, res: Response) => {
+// Get Leaderboard (Top 100)
+router.get('/leaderboard/:gameType', async (req, res) => {
   try {
-    const { gameName, userName, score } = req.body;
-    const newRanking = new Ranking({ gameName, userName, score });
-    const saved = await newRanking.save();
-    res.status(201).json(saved);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    const { gameType } = req.params;
+    const leaderboard = await UserRanking.find({ gameType })
+      .sort({ points: -1 }) // Sort by points descending
+      .limit(100)
+      .select('userName tier tierLevel points wins losses');
+
+    res.json(leaderboard);
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// 랭킹 조회
-router.get("/", async (req: Request, res: Response) => {
-  const { gameName } = req.query;
-  const query = gameName ? { gameName } : {};
-  const rankings = await Ranking.find(query).sort({ score: -1, date: 1 });
-  res.json(rankings);
-});
+// Get User Ranking
+router.get('/user/:userId/:gameType', async (req, res) => {
+  try {
+    const { userId, gameType } = req.params;
+    const ranking = await UserRanking.findOne({ userId, gameType });
 
-// 랭킹 삭제
-router.delete("/:id", async (req: Request, res: Response) => {
-  const deleted = await Ranking.findByIdAndDelete(req.params.id);
-  if (!deleted) return res.status(404).json({ message: "Not found" });
-  res.json({ message: "Deleted" });
+    if (!ranking) {
+      return res.status(404).json({ message: 'Ranking not found' });
+    }
+
+    res.json(ranking);
+  } catch (error) {
+    console.error('Error fetching user ranking:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 export default router;
