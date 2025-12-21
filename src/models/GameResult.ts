@@ -17,6 +17,9 @@ export interface IGameResult extends Document {
   loser?: string;
   draw?: boolean;
   capturedPieces: CapturedPiece[];
+  moves?: number;
+  playTimeSeconds?: number;
+  startTime?: Date;
   endTime: Date;
 }
 
@@ -37,6 +40,9 @@ const gameResultSchema = new Schema<IGameResult>({
       piece: { type: String },
     },
   ],
+  moves: { type: Number },
+  playTimeSeconds: { type: Number },
+  startTime: { type: Date },
   endTime: { type: Date, default: Date.now },
 });
 

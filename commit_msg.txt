@@ -1,0 +1,9 @@
+feat: 매칭 시스템 분리 및 일반 게임 승패 저장 기능 구현
+
+- GameResult 모델에 moves, playTimeSeconds, startTime 필드 추가
+- 랭킹 게임과 일반 게임 매칭 큐 분리
+- joinQueue 이벤트에 isRanked 플래그 추가
+- 일반 게임용 친구 초대 기능 (createRoom, joinRoom)
+- 게임 종료 시 isRanked에 따라 랭킹 업데이트 또는 승패만 저장
+- 소켓 인증 미들웨어 추가 및 대기 인원 수 업데이트 기능
+
