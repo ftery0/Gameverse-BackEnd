@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 
 const SECRET = process.env.NEXTAUTH_SECRET || "super-secret-key";
+console.log("JWT Util initialized. Secret length:", SECRET.length, "Is default:", SECRET === "super-secret-key");
 
 export function verifyToken(token: string) {
   try {

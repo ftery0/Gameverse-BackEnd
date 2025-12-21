@@ -10,7 +10,12 @@ import rankingRouter from './routes/ranking.controller';
 import gameRouter from './routes/game.controller';
 import initGameSocket from './sockets/game.socket';
 
-dotenv.config();
+const result = dotenv.config();
+if (result.error) {
+  console.error("Dotenv Config Error:", result.error);
+} else {
+  console.log("Dotenv loaded successfully from:", process.cwd());
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -32,9 +37,16 @@ app.use("/api/game", gameRouter);
 initGameSocket(io);
 
 // MongoDB 연결
-mongoose.connect(process.env.MONGO_URI as string)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err: Error) => console.error(err));
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+
+if (!mongoUri) {
+  console.error("FATAL ERROR: MONGO_URI or MONGODB_URI is not defined in .env");
+  // process.exit(1); // Do not exit, just log error to allow fixing
+} else {
+  mongoose.connect(mongoUri)
+    .then(() => console.log("MongoDB connected"))
+    .catch((err: Error) => console.error("MongoDB connection error:", err));
+}
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
